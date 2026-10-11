@@ -162,8 +162,8 @@ const ENEMY_DESIGNS = {
   // Tier 1
   rattlecan: mkDesign('Rattlecan', 'c_wsp l_spr t_box h_opt r_emb', { armL: 'w_gat', armR: 'w_lac', core: ['s_amm', 's_hs'], plates: { tf1: 'p_lgt', tf2: 'p_lgt' }, paint: paint('#c9a23a', '#3a2a1a', '#ff4d3d', 'hazard', '13', 'RATTLE') }),
   pike: mkDesign('Pike', 'c_wsp l_str t_wdg h_opt r_emb', { armL: 'w_lac', armR: 'w_ac', shL: 'w_srm', core: ['s_amm', 's_hs'], plates: { tf1: 'p_hvy' }, paint: paint('#5b6340', '#2e3324', '#e0c060', 'camo', '22', 'PIKE') }),
-  coil: mkDesign('Coil', 'c_skf l_spr t_spn h_opt r_emb', { armL: 'w_mlas', armR: 'w_lac', core: ['s_hs'], paint: paint('#2e6fa0', '#1a2430', '#ffffff', 'twotone', '04', 'COIL') }),
-  wasp: mkDesign('Wasp', 'c_wsp l_hov t_spn h_hwk r_cld', { armL: 'w_plas', armR: 'w_plas', shL: 'w_mlas', shR: 'w_mlas', core: ['s_hs'], back: 'b_bst', armor: 'a_abl', paint: paint('#e8c020', '#151515', '#151515', 'stripes', '01', 'WASP') }),
+  coil: mkDesign('Coil', 'c_skf l_spr t_spn h_opt r_emb', { armL: 'w_mlas', armR: 'w_mlas', core: ['s_hs'], paint: paint('#2e6fa0', '#1a2430', '#ffffff', 'twotone', '04', 'COIL') }),
+  wasp: mkDesign('Wasp', 'c_wsp l_hov t_spn h_opt r_cld', { armL: 'w_plas', armR: 'w_plas', shL: 'w_mlas', core: ['s_hs'], back: 'b_bst', armor: 'a_abl', paint: paint('#e8c020', '#151515', '#151515', 'stripes', '01', 'WASP') }),
   // Tier 2
   ledger: mkDesign('Ledger', 'c_rng l_atl t_box h_wsc r_frg', { armL: 'w_srm', armR: 'w_srm', shL: 'w_lrm', shR: 'w_lrm', core: ['s_amm', 's_ecm', 's_hs'], plates: { tf1: 'p_hvy' }, paint: paint('#3d7d4a', '#22301f', '#e0e0d0', 'splinter', '31', 'LEDGER') }),
   hound: mkDesign('Hound', 'c_wsp l_spr t_box h_opt r_emb', { armL: 'w_lac', armR: 'w_plas', core: ['s_hs'], back: 'b_bst', paint: paint('#7a5a3a', '#2b2b2e', '#ff8a3d', 'digital', '66', 'HOUND') }),
@@ -179,12 +179,15 @@ const ENEMY_DESIGNS = {
   // Tier 4
   tidebiter: mkDesign('Tidebiter', 'c_wsp l_spr t_box h_opt r_emb', { armL: 'w_bld', armR: 'w_sgc', core: ['s_hs', 's_amm'], back: 'b_bst', plates: { tf1: 'p_hvy' }, paint: paint('#8a4b22', '#3a2a1a', '#c9a23a', 'hazard', '5', 'TIDE') }),
   tidegun: mkDesign('Tidegun', 'c_wsp l_spr t_box h_opt r_emb', { armL: 'w_gat', armR: 'w_gat', core: ['s_amm', 's_hs'], back: 'b_bst', paint: paint('#8a4b22', '#3a2a1a', '#c9a23a', 'digital', '6', 'TIDE') }),
-  corvane: mkDesign('Old Corvane', 'c_col l_jug t_box h_wsc r_frg', { shL: 'w_lrm', shR: 'w_lrm', back: 'w_lrm', armL: 'w_srm', armR: 'w_srm', core: ['s_amm', 's_amm', 's_ecm'], armor: 'a_rea', plates: { tf1: 'p_hvy', tf2: 'p_hvy', tsL: 'p_hvy', tsR: 'p_hvy' }, paint: paint('#4f5a36', '#262b1c', '#e0c060', 'camo', '71', 'CORVANE') }),
+  corvane: mkDesign('Old Corvane', 'c_col l_jug t_frt h_wsc r_frg', { shL: 'w_lrm', shR: 'w_lrm', back: 'w_lrm', armL: 'w_srm', armR: 'w_srm', core: ['s_amm', 's_amm', 's_ecm'], armor: 'a_rea', plates: { tf1: 'p_hvy', tf2: 'p_hvy', tsL: 'p_hvy', tsR: 'p_hvy' }, paint: paint('#4f5a36', '#262b1c', '#e0c060', 'camo', '71', 'CORVANE') }),
   bulwark: mkDesign('Bulwark', 'c_bst l_crw t_wdg h_crn r_frg', { armL: 'w_shd', armR: 'w_hac', shL: 'w_srm', shR: 'w_srm', core: ['s_amm', 's_hs'], armor: 'a_rei', plates: { tf1: 'p_hvy' }, paint: paint('#3a3f47', '#16181c', '#ffb000', 'stripes', '44', 'BULWARK') }),
-  lancer: mkDesign('Lancer', 'c_bst l_stk t_box h_hwk r_sun', { armL: 'w_rail', armR: 'w_ndl', shL: 'w_ndl', shR: 'w_plas', core: ['s_cry', 's_amm', 's_fcc'], plates: { tf1: 'p_hvy', tf2: 'p_hvy' }, paint: paint('#e8eef2', '#3a4a5a', '#2fd6e8', 'splinter', '02', 'LANCER') }),
+  lancer: mkDesign('Lancer', 'c_col l_jug t_frt h_hwk r_sun', { armL: 'w_rail', armR: 'w_rail', shL: 'w_ndl', shR: 'w_plas', core: ['s_cry', 's_amm', 's_fcc'], plates: { tf1: 'p_hvy', tf2: 'p_hvy', tsL: 'p_hvy', tsR: 'p_hvy' }, paint: paint('#e8eef2', '#3a4a5a', '#2fd6e8', 'splinter', '02', 'LANCER') }),
   cinder: mkDesign('Cinder', 'c_bst l_stk t_wdg h_crn r_ovd', { armL: 'w_plz', armR: 'w_plz', shL: 'w_swm', shR: 'w_mlas', core: ['s_cry', 's_hs'], back: 'b_jj', armor: 'a_abl', plates: { tf1: 'p_hvy', tf2: 'p_hvy' }, paint: paint('#3a1a14', '#1a0e0a', '#ff5a2a', 'hazard', '66', 'CINDER') }),
   thunder: mkDesign('Thunder', 'c_bst l_atl t_brl h_wsc r_frg', { back: 'w_art', shL: 'w_lrm', shR: 'w_mor', armL: 'w_ac', armR: 'w_ac', core: ['s_amm', 's_amm', 's_hs'], paint: paint('#6c6a63', '#2a2925', '#ff8a3d', 'digital', '90', 'THUNDER') }),
   saint: mkDesign('Iron Saint', 'c_col l_jug t_frt h_crn r_sun', { armL: 'w_tsh', armR: 'w_rail', shL: 'w_ndl', shR: 'w_ndl', back: 'b_drn', core: ['s_amm', 's_aam', 's_cry', 's_rfx'], armor: 'a_rei', plates: { tf1: 'p_blk', tf2: 'p_blk' }, paint: paint('#1d1f24', '#b8a070', '#ffd27a', 'twotone', 'I', 'SAINT') }),
+  goliath: mkDesign('Goliath', 'c_col l_jug t_frt h_crn r_sun', { armL: 'w_hac', armR: 'w_hac', shL: 'w_srm', shR: 'w_srm', back: 'w_art', core: ['s_amm', 's_aam', 's_hs', 's_cry'], plates: { tf1: 'p_hvy', tf2: 'p_hvy' }, paint: paint('#4a3a2a', '#1a1612', '#e08a3a', 'stripes', '88', 'GOLIATH') }),
+  tempest: mkDesign('Tempest', 'c_col l_stk t_frt h_hwk r_sun', { armL: 'w_sol', armR: 'w_rail', shL: 'w_plas', shR: 'w_mlas', core: ['s_cry', 's_cry', 's_amm'], armor: 'a_abl', plates: { tf1: 'p_hvy', tf2: 'p_hvy', tsL: 'p_hvy', tsR: 'p_hvy' }, paint: paint('#dfe6ea', '#2a3a4a', '#5fe9ff', 'splinter', '27', 'TEMPEST') }),
+  hellfire: mkDesign('Hellfire', 'c_col l_atl t_wdg h_wsc r_frg', { shL: 'w_swm', shR: 'w_swm', back: 'w_lrm', armL: 'w_srm', armR: 'w_srm', core: ['s_amm', 's_amm'], armor: 'a_rea', plates: { tf1: 'p_hvy', tf2: 'p_hvy', tsL: 'p_hvy', tsR: 'p_hvy', tb: 'p_lgt' }, paint: paint('#6a5a2a', '#2a2414', '#ff8a3d', 'camo', '35', 'HELLFIRE') }),
   // Sparring and challenge stock
   spar_l: mkDesign('Sparring Bot', 'c_wsp l_str t_box h_opt r_emb', { armL: 'w_lac', armR: 'w_mlas', core: ['s_hs'], paint: paint('#9aa6b2', '#3a4048', '#ffb000', 'hazard', 'SB', 'SPAR') }),
   spar_m: mkDesign('Sparring Bot', 'c_rng l_str t_box h_opt r_frg', { armL: 'w_ac', armR: 'w_plas', shR: 'w_srm', core: ['s_hs', 's_amm'], paint: paint('#9aa6b2', '#3a4048', '#ffb000', 'hazard', 'SB', 'SPAR') }),
@@ -203,21 +206,21 @@ const STARTER_DESIGNS = () => [
 // ---------------------------------------------------------------------
 const RIVALS = {
   dex: { name: 'Dex Moreau', call: 'Rattlecan', faction: 'rus', skill: 0.25, trait: 'brawler', level: 1, style: 'Twin gatling sprinter', bio: 'Rustwater scrap kid who thinks volume is a strategy. Usually he is right for about ten seconds.' },
-  ivo: { name: 'Ivo Brandt', call: 'Pike', faction: 'hal', skill: 0.35, style: 'Wedge hulled gunner', bio: 'Halvard apprentice. Keeps his nose pointed at you and his armor thick.' },
-  twins: { name: 'Nessa and Jory Vale', call: 'Twin Coil', faction: 'lum', skill: 0.35, style: 'Paired micro laser scouts', bio: 'Siblings who share one garage and one brain cell. They make it count.' },
+  ivo: { name: 'Ivo Brandt', call: 'Pike', faction: 'hal', skill: 0.35, trait: 'marksman', level: 2, style: 'Wedge hulled gunner', bio: 'Halvard apprentice. Keeps his nose pointed at you and his armor thick.' },
+  twins: { name: 'Nessa and Jory Vale', call: 'Twin Coil', faction: 'lum', skill: 0.3, trait: 'drifter', level: 1, style: 'Paired micro laser scouts', bio: 'Siblings who share one garage and one brain cell. They make it count.' },
   mira: { name: 'Mira Kestl', call: 'The Wasp', faction: 'lum', skill: 0.6, trait: 'drifter', level: 4, style: 'Hover laser kiter', bio: 'Scrapyard Circuit champion three seasons running. She never stops moving and never stops stinging.' },
-  odalys: { name: 'Odalys Venn', call: 'Ledger', faction: 'cor', skill: 0.5, style: 'Missile boat', bio: 'Corvane accountant turned pilot. Counts every missile, wastes none.' },
-  pack: { name: 'The Hound Pack', call: 'Hounds', faction: 'rus', skill: 0.4, style: 'Swarm of light mechs', bio: 'Three Rustwater runners who hunt together and share the purse.' },
-  caul: { name: 'Brother Caul', call: 'Furnace', faction: 'rus', skill: 0.5, style: 'Flame and plasma brawler', bio: 'Preaches that heat is holy. Brings a lot of it.' },
+  odalys: { name: 'Odalys Venn', call: 'Ledger', faction: 'cor', skill: 0.5, trait: 'tactician', level: 3, style: 'Missile boat', bio: 'Corvane accountant turned pilot. Counts every missile, wastes none.' },
+  pack: { name: 'The Hound Pack', call: 'Hounds', faction: 'rus', skill: 0.4, trait: 'brawler', level: 3, style: 'Swarm of light mechs', bio: 'Three Rustwater runners who hunt together and share the purse.' },
+  caul: { name: 'Brother Caul', call: 'Furnace', faction: 'rus', skill: 0.5, trait: 'coolhead', level: 4, style: 'Flame and plasma brawler', bio: 'Preaches that heat is holy. Brings a lot of it.' },
   gregor: { name: 'Gregor Halvard', call: 'Anvil', faction: 'hal', skill: 0.65, trait: 'ironnerve', level: 5, style: 'Shielded tracked brick', bio: 'Heir to the Halvard Foundries. Slow, patient, and almost impossible to dent.' },
-  sable: { name: 'Sable Quist', call: 'Glasswing', faction: 'lum', skill: 0.65, style: 'Energy kiting hover', bio: 'Lumen test pilot. Fights at the edge of your range and smiles about it.' },
-  rook: { name: 'Rook', call: 'Longshot', faction: 'cor', skill: 0.6, style: 'Artillery sniper with spotter', bio: 'Never seen outside the cockpit. Shells arrive before the sound does.' },
-  choir: { name: 'The Iron Choir', call: 'Choir', faction: 'kaa', skill: 0.6, style: 'Disciplined medium trio', bio: 'Arena Authority enforcers. Three mechs, one voice, focus fire on cue.' },
+  sable: { name: 'Sable Quist', call: 'Glasswing', faction: 'lum', skill: 0.65, trait: 'drifter', level: 6, style: 'Energy kiting hover', bio: 'Lumen test pilot. Fights at the edge of your range and smiles about it.' },
+  rook: { name: 'Rook', call: 'Longshot', faction: 'cor', skill: 0.6, trait: 'tactician', level: 6, style: 'Artillery sniper with spotter', bio: 'Never seen outside the cockpit. Shells arrive before the sound does.' },
+  choir: { name: 'The Iron Choir', call: 'Choir', faction: 'kaa', skill: 0.6, trait: 'marksman', level: 6, style: 'Disciplined medium trio', bio: 'Arena Authority enforcers. Three mechs, one voice, focus fire on cue.' },
   yara: { name: 'Yara Lumen', call: 'Sunspot', faction: 'lum', skill: 0.75, trait: 'coolhead', level: 7, style: 'Heavy beam lasers', bio: 'Syndicate heiress. Her beams can melt a light frame in one sweep.' },
-  tide: { name: 'Rustwater Tide', call: 'Rust Tide', faction: 'rus', skill: 0.55, style: 'Five light swarm', bio: 'The whole Combine yard turned out. Blades, scatter guns, and no fear.' },
-  corvane: { name: 'Old Corvane', call: 'Patriarch', faction: 'cor', skill: 0.7, style: 'Twin missile walls', bio: 'Founder of the Freehold. Buries arenas in missiles from beyond your sight.' },
-  mirror: { name: 'Foundry Elite', call: 'Mirror', faction: 'hal', skill: 0.75, style: 'Four mixed heavies', bio: 'The best pilots money can rent. Each one built to cover the others.' },
-  vell: { name: 'Kaiser Vell', call: 'The Iron Saint', faction: 'hal', skill: 0.9, trait: 'marksman', level: 9, style: 'Assault railgun with tower shield', bio: 'Undefeated Crown holder. Nobody has seen the back of his mech and lived to brag.' },
+  tide: { name: 'Rustwater Tide', call: 'Rust Tide', faction: 'rus', skill: 0.55, trait: 'brawler', level: 8, style: 'Five light swarm', bio: 'The whole Combine yard turned out. Blades, scatter guns, and no fear.' },
+  corvane: { name: 'Old Corvane', call: 'Patriarch', faction: 'cor', skill: 0.7, trait: 'tactician', level: 9, style: 'Twin missile walls', bio: 'Founder of the Freehold. Buries arenas in missiles from beyond your sight.' },
+  mirror: { name: 'Foundry Elite', call: 'Mirror', faction: 'hal', skill: 0.75, trait: 'marksman', level: 9, style: 'Four mixed heavies', bio: 'The best pilots money can rent. Each one built to cover the others.' },
+  vell: { name: 'Kaiser Vell', call: 'The Iron Saint', faction: 'hal', skill: 0.9, trait: 'marksman', level: 10, style: 'Assault railgun with tower shield', bio: 'Undefeated Crown holder. Nobody has seen the back of his mech and lived to brag.' },
 };
 
 // ---------------------------------------------------------------------
@@ -241,9 +244,9 @@ const CAMPAIGN = [
     unlockText: 'Heavy class 75t | Squad of 3 | Tier 3 parts',
     matches: [
       { id: 't2m1', rival: 'odalys', map: 'field', enemies: ['ledger', 'hound'], credits: 3600, rep: 40 },
-      { id: 't2m2', rival: 'pack', map: 'ruins', enemies: ['hound', 'hound', 'hound', 'hound'], credits: 4000, rep: 45 },
-      { id: 't2m3', rival: 'caul', map: 'yard', enemies: ['furnace', 'furnace'], credits: 4200, rep: 50 },
-      { id: 't2m4', rival: 'gregor', map: 'canyon', enemies: ['anvil', 'ledger', 'hound'], credits: 6500, rep: 90, boss: true },
+      { id: 't2m2', rival: 'pack', map: 'ruins', enemies: ['hound', 'hound', 'hound'], credits: 4000, rep: 45 },
+      { id: 't2m3', rival: 'caul', map: 'yard', enemies: ['furnace', 'coil'], credits: 4200, rep: 50 },
+      { id: 't2m4', rival: 'gregor', map: 'canyon', enemies: ['anvil', 'ledger'], credits: 6500, rep: 90, boss: true },
     ],
   },
   {
@@ -252,9 +255,9 @@ const CAMPAIGN = [
     unlockText: 'Assault class 100t | Squad of 4 | Tier 4 parts',
     matches: [
       { id: 't3m1', rival: 'sable', map: 'field', enemies: ['glasswing', 'glasswing', 'prism', 'prism'], credits: 7000, rep: 60 },
-      { id: 't3m2', rival: 'rook', map: 'canyon', enemies: ['longshot', 'longshot', 'kite', 'kite'], credits: 7600, rep: 65 },
+      { id: 't3m2', rival: 'rook', map: 'canyon', enemies: ['longshot', 'longshot', 'choir', 'kite'], credits: 7600, rep: 65 },
       { id: 't3m3', rival: 'choir', map: 'ruins', enemies: ['choir', 'choir', 'choir', 'choir'], credits: 8200, rep: 70 },
-      { id: 't3m4', rival: 'yara', map: 'yard', enemies: ['sunspot', 'sunspot', 'glasswing', 'prism'], credits: 12000, rep: 130, boss: true },
+      { id: 't3m4', rival: 'yara', map: 'yard', enemies: ['sunspot', 'glasswing', 'prism', 'prism'], credits: 12000, rep: 130, boss: true },
     ],
   },
   {
@@ -262,10 +265,10 @@ const CAMPAIGN = [
     blurb: 'Assault frames. The water rights of a continent ride on every match.',
     unlockText: 'Champion of the Forge Circuit',
     matches: [
-      { id: 't4m1', rival: 'tide', map: 'yard', enemies: ['tidebiter', 'tidebiter', 'tidegun', 'tidegun', 'tidebiter', 'tidegun', 'tidebiter'], credits: 13000, rep: 90 },
-      { id: 't4m2', rival: 'corvane', map: 'canyon', enemies: ['corvane', 'corvane', 'longshot', 'kite'], credits: 14000, rep: 100 },
-      { id: 't4m3', rival: 'mirror', map: 'ruins', enemies: ['bulwark', 'lancer', 'cinder', 'thunder', 'choir'], credits: 15000, rep: 110 },
-      { id: 't4m4', rival: 'vell', map: 'field', enemies: ['saint', 'lancer', 'bulwark', 'cinder'], credits: 25000, rep: 250, boss: true },
+      { id: 't4m1', rival: 'tide', map: 'yard', enemies: ['tidebiter', 'tidebiter', 'tidegun', 'tidegun', 'cinder', 'cinder', 'bulwark', 'thunder'], credits: 13000, rep: 90 },
+      { id: 't4m2', rival: 'corvane', map: 'canyon', enemies: ['corvane', 'corvane', 'hellfire', 'tempest'], credits: 14000, rep: 100 },
+      { id: 't4m3', rival: 'mirror', map: 'ruins', enemies: ['goliath', 'tempest', 'lancer', 'cinder', 'thunder'], credits: 15000, rep: 110 },
+      { id: 't4m4', rival: 'vell', map: 'field', enemies: ['saint', 'tempest', 'lancer', 'corvane', 'goliath'], credits: 25000, rep: 250, boss: true },
     ],
   },
 ];
