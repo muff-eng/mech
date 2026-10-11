@@ -584,7 +584,7 @@ class Unit {
   }
 
   // ---------------- damage ----------------
-  damageComp(k, amt, attacker, w, internal) {
+  damageComp(k, amt, attacker, w, internal, canCrit) {
     const c = this.comps[k];
     if (!c || !c.alive || amt <= 0) return 0;
     if (this.dummy && k === 'torso') amt = Math.min(amt, Math.max(0, c.hp - 1));
@@ -592,7 +592,7 @@ class Unit {
     this.s.structTaken += amt;
     let over = 0;
     if (c.hp <= 0) { over = -c.hp; c.hp = 0; this.destroyComp(k, attacker, w); }
-    if (k === 'torso' && !internal && this.alive && chance(0.3 * (this.ptrait.nerve ? 0.7 : 1))) {
+    if (k === 'torso' && !internal && canCrit && this.alive && chance(0.3 * (this.ptrait.nerve ? 0.7 : 1))) {
       const ints = INTERNAL.filter((x) => this.alive_(x));
       if (ints.length) {
         const ik = pick(ints);
@@ -828,8 +828,9 @@ class Battle {
       const sh = t.shields[comp];
       if (sh && sh.hp > 0) { sh.hp = Math.max(0, sh.hp - sd * 0.5); sd *= 0.5; }
     }
-    const over = t.damageComp(comp, sd, a, h.w);
-    if (over > 0 && t.alive && comp !== 'torso') t.damageComp('torso', over * 0.5, a, h.w);
+    const breach = absorbed < toArmor - 0.01;
+    const over = t.damageComp(comp, sd, a, h.w, false, breach);
+    if (over > 0 && t.alive && comp !== 'torso') t.damageComp('torso', over * 0.5, a, h.w, false, true);
     this.ev({ t: 'hit', u: t, comp, facing, dmg, dt: h.dt, raw, armorHit: absorbed > 0, struct: sd, beam: h.beam, splash: h.splash, kind: h.w ? h.w.p.kind : '' });
     this.credit(a, h.w, dmg);
     this.afterHitEffects(t, h, a);

@@ -117,7 +117,7 @@ function patternTex(pattern, p, s, a, seed = 1) {
     g.fillStyle = s;
     if (pattern === 'stripes') {
       g.save(); g.translate(w / 2, h / 2); g.rotate(-Math.PI / 4);
-      for (let x = -w; x < w; x += 64) g.fillRect(x, -h, 22, h * 2);
+      for (let x = -w; x < w; x += 85) g.fillRect(x, -h, 16, h * 2);
       g.restore();
     } else if (pattern === 'hazard') {
       g.save(); g.translate(w / 2, h / 2); g.rotate(-Math.PI / 4);
@@ -194,10 +194,10 @@ function noiseTex(key, base, var1, size = 256, rep = [8, 8], extra) {
 const MAT = {};
 function sharedMats() {
   if (MAT.ready) return MAT;
-  MAT.metal = new THREE.MeshStandardMaterial({ color: 0x3a3f46, metalness: 0.6, roughness: 0.45 });
-  MAT.dark = new THREE.MeshStandardMaterial({ color: 0x15171a, metalness: 0.5, roughness: 0.6 });
+  MAT.metal = new THREE.MeshStandardMaterial({ color: 0x5a616b, metalness: 0.3, roughness: 0.45 });
+  MAT.dark = new THREE.MeshStandardMaterial({ color: 0x1c1f23, metalness: 0.2, roughness: 0.6 });
   MAT.rubber = new THREE.MeshStandardMaterial({ color: 0x1b1b1d, metalness: 0.1, roughness: 0.9 });
-  MAT.chrome = new THREE.MeshStandardMaterial({ color: 0x9aa3ad, metalness: 0.85, roughness: 0.25 });
+  MAT.chrome = new THREE.MeshStandardMaterial({ color: 0xc4ccd6, metalness: 0.45, roughness: 0.25 });
   MAT.char = new THREE.MeshStandardMaterial({ color: 0x1a1512, metalness: 0.2, roughness: 0.95 });
   MAT.marker = new THREE.MeshBasicMaterial({ color: 0x2fd6e8, transparent: true, opacity: 0.8, depthTest: false });
   MAT.markerOn = new THREE.MeshBasicMaterial({ color: 0xffb000, transparent: true, opacity: 0.95, depthTest: false });

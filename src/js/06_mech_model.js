@@ -33,11 +33,11 @@ function mechMats(paint, seed) {
   const tex = patternTex(p.pattern || 'solid', p.p, p.s, p.a, seed);
   const accent = new THREE.Color(p.a);
   return {
-    primary: new THREE.MeshStandardMaterial({ map: tex, metalness: 0.35, roughness: 0.55 }),
-    secondary: new THREE.MeshStandardMaterial({ color: p.s, metalness: 0.45, roughness: 0.55 }),
-    accent: new THREE.MeshStandardMaterial({ color: p.a, metalness: 0.3, roughness: 0.4 }),
-    joint: new THREE.MeshStandardMaterial({ color: 0x24272c, metalness: 0.7, roughness: 0.4 }),
-    metal: new THREE.MeshStandardMaterial({ color: 0x3d434b, metalness: 0.65, roughness: 0.42 }),
+    primary: new THREE.MeshStandardMaterial({ map: tex, metalness: 0.12, roughness: 0.62 }),
+    secondary: new THREE.MeshStandardMaterial({ color: p.s, metalness: 0.18, roughness: 0.6 }),
+    accent: new THREE.MeshStandardMaterial({ color: p.a, metalness: 0.1, roughness: 0.45 }),
+    joint: new THREE.MeshStandardMaterial({ color: 0x4a4f57, metalness: 0.3, roughness: 0.5 }),
+    metal: new THREE.MeshStandardMaterial({ color: 0x6a717b, metalness: 0.3, roughness: 0.45 }),
     dark: sharedMats().dark,
     rubber: sharedMats().rubber,
     chrome: sharedMats().chrome,

@@ -76,8 +76,17 @@ class FX {
     this.shake = 0;
     this.tracers = []; this.beams = []; this.debris = []; this.decals = []; this.rings = [];
     this.tracerMat = new THREE.MeshBasicMaterial({ color: 0xffd080, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false });
-    this.decalMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.55, depthWrite: false });
-    this.ringMat = new THREE.MeshBasicMaterial({ color: 0xffc080, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+    const scorch = canvasTex('scorch', 128, 128, (g, w, h) => {
+      const r = mulberry32(5);
+      const gr = g.createRadialGradient(w / 2, h / 2, 2, w / 2, h / 2, w / 2);
+      gr.addColorStop(0, 'rgba(0,0,0,0.95)'); gr.addColorStop(0.45, 'rgba(10,8,6,0.7)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, w, h);
+      g.fillStyle = 'rgba(0,0,0,0.5)';
+      for (let i = 0; i < 14; i++) { const a = r() * TAU, d = 20 + r() * 34; g.beginPath(); g.arc(w / 2 + Math.cos(a) * d, h / 2 + Math.sin(a) * d, 2 + r() * 6, 0, TAU); g.fill(); }
+    });
+    scorch.colorSpace = THREE.NoColorSpace;
+    this.decalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, map: scorch, transparent: true, opacity: 0.8, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    this.ringMat = new THREE.MeshBasicMaterial({ color: 0xffc080, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
     this.projMeshes = new Map();
     this._v = new V3(); this._v2 = new V3();
   }
@@ -191,7 +200,7 @@ class FX {
   update(dt, camPos) {
     this.add.update(dt); this.smoke.update(dt);
     for (const t of this.tracers) if (t.m.visible) { t.life -= dt; t.m.material.opacity = Math.max(0, t.life / t.max); if (t.life <= 0) t.m.visible = false; }
-    for (const r of this.rings) if (r.m.visible) { r.t += dt; const k = r.t / 0.45; r.m.scale.setScalar(0.5 + k * 7 * r.size); r.m.material.opacity = Math.max(0, 0.8 * (1 - k)); if (k >= 1) r.m.visible = false; }
+    for (const r of this.rings) if (r.m.visible) { r.t += dt; const k = r.t / 0.45; r.m.scale.setScalar(0.5 + k * 7 * r.size); r.m.material.opacity = Math.max(0, 0.45 * (1 - k)); if (k >= 1) r.m.visible = false; }
     if (this.arena) for (const f of this.arena.flashes) if (f.t > 0) { f.t -= dt; f.l.intensity = Math.max(0, f.max * (f.t / f.dur)); }
     for (const d of this.debris) {
       d.t += dt;

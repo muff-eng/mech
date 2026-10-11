@@ -37,10 +37,10 @@ function arenaMaterials(map) {
       }), roughness: 0.9,
     }),
     containerRib: canvasTex('ribs', 128, 64, (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = 'rgba(0,0,0,0.22)'; for (let x = 0; x < w; x += 8) g.fillRect(x, 0, 3, h); g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(0, 0, w, 4); g.fillRect(0, h - 4, w, 4); }),
-    tank: new THREE.MeshStandardMaterial({ color: 0xc9c4b8, metalness: 0.5, roughness: 0.45 }),
+    tank: new THREE.MeshStandardMaterial({ color: 0xc9c4b8, metalness: 0.2, roughness: 0.5 }),
     stripe: new THREE.MeshStandardMaterial({ map: stripeTex('#ffb000', '#1a1c20'), roughness: 0.7 }),
-    pipe: new THREE.MeshStandardMaterial({ color: 0x8a5a2a, metalness: 0.5, roughness: 0.5 }),
-    steel: new THREE.MeshStandardMaterial({ color: 0x4a4f57, metalness: 0.6, roughness: 0.5 }),
+    pipe: new THREE.MeshStandardMaterial({ color: 0x8a5a2a, metalness: 0.2, roughness: 0.5 }),
+    steel: new THREE.MeshStandardMaterial({ color: 0x5a6069, metalness: 0.3, roughness: 0.5 }),
     lamp: new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xfff0c0, emissiveIntensity: 2 }),
     crowd: new THREE.MeshStandardMaterial({
       map: canvasTex('crowd', 256, 64, (g, w, h) => {
@@ -134,9 +134,9 @@ function buildArena(mapId) {
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(map.fog, map.fogD[0], map.fogD[1]);
   scene.add(skyDome(map.sky[0], map.sky[1]));
-  const hemi = new THREE.HemisphereLight(map.sky[0], map.ground, map.amb);
+  const hemi = new THREE.HemisphereLight(map.sky[0], map.ground, map.amb * 2.2);
   scene.add(hemi);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.18));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
   const sun = new THREE.DirectionalLight(map.sun, 2.4);
   sun.position.set(60, 110, 40);
   sun.castShadow = true;
@@ -190,14 +190,16 @@ function buildHangarScene() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0d0f12);
   scene.fog = new THREE.Fog(0x0d0f12, 30, 70);
-  scene.add(new THREE.HemisphereLight(0x8aa0b8, 0x1a1c20, 0.6));
-  const key = new THREE.DirectionalLight(0xfff0dd, 2.2);
+  scene.add(new THREE.HemisphereLight(0xb8c8dc, 0x2a2c30, 1.4));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+  const key = new THREE.DirectionalLight(0xfff0dd, 2.8);
   key.position.set(8, 16, 10); key.castShadow = true;
   Object.assign(key.shadow.camera, { left: -10, right: 10, top: 12, bottom: -4, near: 1, far: 50 });
   key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -0.0005;
   scene.add(key);
-  const amber = new THREE.PointLight(0xffa020, 40, 30, 2); amber.position.set(-9, 6, 4); scene.add(amber);
-  const cyan = new THREE.PointLight(0x2fd6e8, 40, 30, 2); cyan.position.set(9, 4, -5); scene.add(cyan);
+  const amber = new THREE.PointLight(0xffa020, 90, 34, 2); amber.position.set(-9, 6, 6); scene.add(amber);
+  const fill = new THREE.DirectionalLight(0x9fc4ff, 1.0); fill.position.set(-10, 6, 12); scene.add(fill);
+  const cyan = new THREE.PointLight(0x2fd6e8, 70, 30, 2); cyan.position.set(9, 4, -5); scene.add(cyan);
   const floorTex = noiseTex('hangarfloor', '#2a2d32', '#15171a', 512, [6, 6], (g, w, h) => {
     g.strokeStyle = 'rgba(0,0,0,0.5)'; g.lineWidth = 3;
     for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * 128, 0); g.lineTo(i * 128, h); g.moveTo(0, i * 128); g.lineTo(w, i * 128); g.stroke(); }
