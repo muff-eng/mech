@@ -172,9 +172,51 @@ function buildMech(design, opts = {}) {
     if (p.slot === 'plate') { g.userData.panel = MOUNT_BY_ID[mid].facing; rig.panels[MOUNT_BY_ID[mid].facing].unshift(g); }
   }
 
-  rig.root.traverse((o) => { if (o.isMesh) { o.castShadow = o.castShadow && !o.material.transparent; o.receiveShadow = true; } });
+  for (const w of rig.wheels || []) w.userData.noMerge = true;
+  for (const f of rig.jets.concat(rig.boosts)) f.userData.noMerge = true;
+  rig.ownGeos = [];
+  mergeGroupMeshes(rig.root, rig.ownGeos);
+  rig.root.traverse((o) => {
+    if (!o.isMesh) return;
+    if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+    const small = o.geometry.boundingSphere.radius * Math.max(o.scale.x, o.scale.y, o.scale.z) < 0.3;
+    o.castShadow = o.castShadow && !o.material.transparent && !small;
+    o.receiveShadow = true;
+  });
   rig.dims = mechDims(d);
   return rig;
+}
+
+// Merge the static meshes of each rigid group by material to cut draw calls.
+// Panels, wheels and jet flames stay separate because they animate or fall off.
+function mergeGroupMeshes(g, own) {
+  const buckets = new Map();
+  for (const c of g.children) {
+    if (!c.isMesh || c.userData.panel || c.userData.noMerge || c.material.transparent) continue;
+    if (!buckets.has(c.material)) buckets.set(c.material, []);
+    buckets.get(c.material).push(c);
+  }
+  for (const [mat, list] of buckets) {
+    if (list.length < 2) continue;
+    const geos = list.map((m) => { m.updateMatrix(); const ng = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone(); ng.applyMatrix4(m.matrix); return ng; });
+    let n = 0;
+    for (const x of geos) n += x.attributes.position.count;
+    const out = new THREE.BufferGeometry();
+    for (const [a, size] of [['position', 3], ['normal', 3], ['uv', 2]]) {
+      const arr = new Float32Array(n * size);
+      let off = 0;
+      for (const x of geos) { const at = x.attributes[a]; if (at && at.itemSize === size) arr.set(at.array, off); off += x.attributes.position.count * size; }
+      out.setAttribute(a, new THREE.BufferAttribute(arr, size));
+    }
+    out.computeBoundingSphere();
+    for (const x of geos) x.dispose();
+    const mm = new THREE.Mesh(out, mat);
+    mm.castShadow = list.some((m) => m.castShadow); mm.receiveShadow = true;
+    for (const m of list) g.remove(m);
+    g.add(mm);
+    own.push(out);
+  }
+  for (const c of g.children) if (!c.isMesh) mergeGroupMeshes(c, own);
 }
 
 // ---------- LEG BUILDERS ----------
@@ -624,6 +666,7 @@ function charMech(rig) {
 function disposeMech(rig) {
   if (!rig) return;
   if (rig.root.parent) rig.root.parent.remove(rig.root);
+  for (const g of rig.ownGeos || []) g.dispose();
   for (const k in rig.mats) {
     const m = rig.mats[k];
     if (m && m.dispose && m !== MAT.dark && m !== MAT.rubber && m !== MAT.chrome) m.dispose();

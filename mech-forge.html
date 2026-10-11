@@ -294,6 +294,7 @@ canvas.spark { width: 100%; height: 46px; display: block; background: #0d1013; b
 .page { position: absolute; inset: 10px; display: flex; flex-direction: column; pointer-events: none; }
 .page > .panel { flex: 1; display: flex; flex-direction: column; min-height: 0; max-width: 1280px; width: 100%; margin: 0 auto; }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; padding: 10px; }
+.cards.wide { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 .card { background: #11141a; border: 1px solid #232931; padding: 10px; display: flex; flex-direction: column; gap: 6px; position: relative; }
 .card:hover { border-color: var(--line2); }
 .card .cn { font-weight: 800; color: #fff; font-size: 13px; }
@@ -1480,7 +1481,16 @@ function grp(parent, x = 0, y = 0, z = 0) {
 const TEX = { _c: new Map() };
 function canvasTex(key, w, h, draw, repeat) {
   let t = TEX._c.get(key);
-  if (t) return t;
+  if (t) {
+    if (TEX.lru && TEX.lru.has(key)) { TEX.lru.delete(key); TEX.lru.add(key); }
+    return t;
+  }
+  // paint and decal textures change often while editing, so keep only the most recent ones
+  if (/^(pat|pl)\|/.test(key)) {
+    TEX.lru = TEX.lru || new Set();
+    TEX.lru.add(key);
+    if (TEX.lru.size > 48) { const old = TEX.lru.values().next().value; TEX.lru.delete(old); const ot = TEX._c.get(old); if (ot) ot.dispose(); TEX._c.delete(old); }
+  }
   const c = document.createElement('canvas');
   c.width = w; c.height = h;
   const g = c.getContext('2d');
@@ -1835,9 +1845,51 @@ function buildMech(design, opts = {}) {
     if (p.slot === 'plate') { g.userData.panel = MOUNT_BY_ID[mid].facing; rig.panels[MOUNT_BY_ID[mid].facing].unshift(g); }
   }
 
-  rig.root.traverse((o) => { if (o.isMesh) { o.castShadow = o.castShadow && !o.material.transparent; o.receiveShadow = true; } });
+  for (const w of rig.wheels || []) w.userData.noMerge = true;
+  for (const f of rig.jets.concat(rig.boosts)) f.userData.noMerge = true;
+  rig.ownGeos = [];
+  mergeGroupMeshes(rig.root, rig.ownGeos);
+  rig.root.traverse((o) => {
+    if (!o.isMesh) return;
+    if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+    const small = o.geometry.boundingSphere.radius * Math.max(o.scale.x, o.scale.y, o.scale.z) < 0.3;
+    o.castShadow = o.castShadow && !o.material.transparent && !small;
+    o.receiveShadow = true;
+  });
   rig.dims = mechDims(d);
   return rig;
+}
+
+// Merge the static meshes of each rigid group by material to cut draw calls.
+// Panels, wheels and jet flames stay separate because they animate or fall off.
+function mergeGroupMeshes(g, own) {
+  const buckets = new Map();
+  for (const c of g.children) {
+    if (!c.isMesh || c.userData.panel || c.userData.noMerge || c.material.transparent) continue;
+    if (!buckets.has(c.material)) buckets.set(c.material, []);
+    buckets.get(c.material).push(c);
+  }
+  for (const [mat, list] of buckets) {
+    if (list.length < 2) continue;
+    const geos = list.map((m) => { m.updateMatrix(); const ng = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone(); ng.applyMatrix4(m.matrix); return ng; });
+    let n = 0;
+    for (const x of geos) n += x.attributes.position.count;
+    const out = new THREE.BufferGeometry();
+    for (const [a, size] of [['position', 3], ['normal', 3], ['uv', 2]]) {
+      const arr = new Float32Array(n * size);
+      let off = 0;
+      for (const x of geos) { const at = x.attributes[a]; if (at && at.itemSize === size) arr.set(at.array, off); off += x.attributes.position.count * size; }
+      out.setAttribute(a, new THREE.BufferAttribute(arr, size));
+    }
+    out.computeBoundingSphere();
+    for (const x of geos) x.dispose();
+    const mm = new THREE.Mesh(out, mat);
+    mm.castShadow = list.some((m) => m.castShadow); mm.receiveShadow = true;
+    for (const m of list) g.remove(m);
+    g.add(mm);
+    own.push(out);
+  }
+  for (const c of g.children) if (!c.isMesh) mergeGroupMeshes(c, own);
 }
 
 // ---------- LEG BUILDERS ----------
@@ -2287,6 +2339,7 @@ function charMech(rig) {
 function disposeMech(rig) {
   if (!rig) return;
   if (rig.root.parent) rig.root.parent.remove(rig.root);
+  for (const g of rig.ownGeos || []) g.dispose();
   for (const k in rig.mats) {
     const m = rig.mats[k];
     if (m && m.dispose && m !== MAT.dark && m !== MAT.rubber && m !== MAT.chrome) m.dispose();
@@ -2476,7 +2529,7 @@ function buildArena(mapId) {
     }
   }
   const flashes = [];
-  for (let i = 0; i < 4; i++) { const l = new THREE.PointLight(0xffa040, 0, 30, 2); scene.add(l); flashes.push({ l, t: 0, max: 0 }); }
+  for (let i = 0; i < 2; i++) { const l = new THREE.PointLight(0xffa040, 0, 30, 2); scene.add(l); flashes.push({ l, t: 0, max: 0 }); }
   return { scene, map, obstacles, hx: map.hx, hz: map.hz, sun, flashes, mats: M };
 }
 
@@ -4085,10 +4138,15 @@ class BattleView {
     o.onClick = (e) => this.pick(e);
     this.ray = new THREE.Raycaster();
   }
-  setCam(m) {
+  setCam(m, overview) {
     this.camMode = m;
     const o = GFX.orbit;
-    if (m === 'orbit') { o.tTarget.copy(this.camLook); o.target.copy(this.camLook); const d = GFX.camera.position.clone().sub(this.camLook); o.tDist = o.dist = clamp(d.length(), 10, 200); o.tYaw = o.yaw = Math.atan2(d.x, d.z); o.tPitch = o.pitch = clamp(Math.asin(d.y / Math.max(0.01, d.length())), 0.05, 1.4); }
+    if (m === 'orbit' && overview) {
+      const alive = this.b.units.filter((u) => u.alive);
+      const cx = alive.length ? alive.reduce((a, u) => a + u.x, 0) / alive.length : 0, cz = alive.length ? alive.reduce((a, u) => a + u.z, 0) / alive.length : 0;
+      o.tTarget.set(cx, 2, cz); o.tDist = Math.max(this.b.hx, this.b.hz) * 1.1; o.tPitch = 0.85; o.tYaw = Math.atan2(GFX.camera.position.x - cx, GFX.camera.position.z - cz);
+      o.target.copy(this.camLook); const d = GFX.camera.position.clone().sub(this.camLook); o.dist = clamp(d.length(), 10, 200); o.yaw = Math.atan2(d.x, d.z); o.pitch = clamp(Math.asin(d.y / Math.max(0.01, d.length())), 0.05, 1.4);
+    } else if (m === 'orbit') { o.tTarget.copy(this.camLook); o.target.copy(this.camLook); const d = GFX.camera.position.clone().sub(this.camLook); o.tDist = o.dist = clamp(d.length(), 10, 200); o.tYaw = o.yaw = Math.atan2(d.x, d.z); o.tPitch = o.pitch = clamp(Math.asin(d.y / Math.max(0.01, d.length())), 0.05, 1.4); }
     if (UI.battleHud) UI.battleHud.syncButtons();
   }
   pick(e) {
@@ -5222,10 +5280,10 @@ const Arena = {
     let sq = S.squadPick[key];
     if (!sq) {
       sq = [];
-      for (let i = 0; i < n; i++) sq.push({ d: i === 0 ? activeDesign().id : '', p: S.pilots[i] ? S.pilots[i].id : '' });
+      for (let i = 0; i < n; i++) sq.push({ d: i === 0 || S.pilots[i] ? activeDesign().id : '', p: S.pilots[i] ? S.pilots[i].id : '' });
       S.squadPick[key] = sq;
     }
-    while (sq.length < n) sq.push({ d: '', p: '' });
+    while (sq.length < n) { const i = sq.length; sq.push({ d: S.pilots[i] ? activeDesign().id : '', p: S.pilots[i] ? S.pilots[i].id : '' }); }
     sq.length = n;
     if (sq[0] && !sq[0].d) sq[0].d = activeDesign().id;
     return sq;
@@ -5352,7 +5410,18 @@ function startBattle(ctx) {
     const r = rv || null;
     return { design: clone(d), skill: r ? r.skill : ctx.type === 'practice' ? 0.4 : 0.6, pilot: r && r.trait ? { trait: r.trait, level: r.level || 1, call: r.call } : null, name: d.name, call: r ? (i === 0 ? r.call : 'Wing ' + i) : '' };
   });
-  const battle = new Battle({ map: ctx.map, teams: [A, B], orders: [ctx.order || 'aggressive', 'aggressive'], practice: ctx.type === 'practice', timeLimit: ctx.type === 'practice' && ctx.enemies[0] === 'dummy' ? 30 : 240 });
+  const bcfg = { map: ctx.map, teams: [A, B], orders: [ctx.order || 'aggressive', 'aggressive'], practice: ctx.type === 'practice', timeLimit: ctx.type === 'practice' && ctx.enemies[0] === 'dummy' ? 30 : 240 };
+  if (!GFX.ready) {
+    // no WebGL: resolve the fight instantly and go straight to the report
+    const battle = simulateBattle(bcfg, bcfg.timeLimit + 5);
+    if (!battle.over) battle.checkEnd();
+    CURRENT = { ctx, battle, view: null, phase: 'report' };
+    CURRENT.rewards = applyRewards(ctx, battle);
+    UI.toast('No WebGL | battle resolved instantly', 'amber');
+    showReport();
+    return;
+  }
+  const battle = new Battle(bcfg);
   if (VIEW.battleView) { VIEW.battleView.dispose(); VIEW.battleView = null; }
   const view = new BattleView(battle);
   VIEW.battleView = view;
@@ -5404,7 +5473,7 @@ const BattleHud = {
       const sp = t.closest('[data-sp]');
       if (sp) { if (sp.dataset.sp === 'pause') v.paused = !v.paused; else { v.speed = +sp.dataset.sp; v.paused = false; } this.renderBot(); return; }
       const cm = t.closest('[data-cam]');
-      if (cm) { v.setCam(cm.dataset.cam); return; }
+      if (cm) { v.setCam(cm.dataset.cam, true); return; }
       const od = t.closest('[data-ord]');
       if (od) { b.orders[0] = od.dataset.ord; if (od.dataset.ord === 'focus') { const tgt = v.follow && v.follow.team === 1 && v.follow.alive ? v.follow : b.enemiesOf(0).sort((x, y) => x.hpFrac - y.hpFrac)[0]; b.focus[0] = tgt || null; if (tgt) UI.toast('Focus fire on ' + esc(tgt.name) + ' | Click an enemy card to change', 'amber', 2200); } this.renderBot(); return; }
       if (t.closest('[data-quit]')) {
@@ -5426,7 +5495,7 @@ const BattleHud = {
     else if (e.key === '1') { v.speed = 1; v.paused = false; this.renderBot(); }
     else if (e.key === '2') { v.speed = 2; v.paused = false; this.renderBot(); }
     else if (e.key === '3' || e.key === '4') { v.speed = 4; v.paused = false; this.renderBot(); }
-    else if (e.key === 'c' || e.key === 'C') { const m = ['orbit', 'follow', 'cinematic']; v.setCam(m[(m.indexOf(v.camMode) + 1) % 3]); }
+    else if (e.key === 'c' || e.key === 'C') { const m = ['orbit', 'follow', 'cinematic']; v.setCam(m[(m.indexOf(v.camMode) + 1) % 3], true); }
     else if (e.key === 'Tab') {
       e.preventDefault();
       const us = CURRENT.battle.units.filter((u) => u.alive);
@@ -5853,7 +5922,7 @@ const Roster = {
   render() {
     const slots = squadSlots();
     let h = '<div class="page"><div class="panel rivets pe"><h3>Pilot Roster<span class="sp"></span><span class="faint" style="text-transform:none;letter-spacing:0">Squad slots ' + S.pilots.length + ' of ' + slots + ' | More slots unlock with each tier</span></h3><div class="scroll grow" data-k="rost">';
-    h += '<div class="sect"><h4>Your Pilots</h4></div><div class="cards">';
+    h += '<div class="sect"><h4>Your Pilots</h4></div><div class="cards wide">';
     for (const p of S.pilots) {
       const tr = PILOT_TRAITS[p.trait];
       const need = pilotXpNeeded(p.level);
@@ -5862,7 +5931,7 @@ const Roster = {
     }
     h += '</div>';
     if (!isSandbox()) {
-      h += '<div class="sect"><h4>Hiring Board</h4>' + (S.pilots.length >= slots ? '<div class="faint" style="font-size:12px">Squad is full for your tier. Beat the tier boss to open another slot.</div>' : '<div class="faint" style="font-size:12px">Hire cost ' + fmt(this.hireCost()) + ' cr</div>') + '</div><div class="cards">';
+      h += '<div class="sect"><h4>Hiring Board</h4>' + (S.pilots.length >= slots ? '<div class="faint" style="font-size:12px">Squad is full for your tier. Beat the tier boss to open another slot.</div>' : '<div class="faint" style="font-size:12px">Hire cost ' + fmt(this.hireCost()) + ' cr</div>') + '</div><div class="cards wide">';
       for (const p of S.hire) {
         const tr = PILOT_TRAITS[p.trait];
         h += '<div class="card"><div class="pilot">' + this.portrait(p) + '<div><div class="cn">' + esc(p.call) + '</div><div class="cs">' + esc(p.name) + '</div><div class="ct">' + esc(tr.name) + ' | ' + esc(tr.desc) + '</div></div></div><div class="cf"><span class="price">' + fmt(this.hireCost()) + ' cr</span><button class="btn sm pri" data-hire="' + p.id + '" ' + (S.pilots.length >= slots || S.credits < this.hireCost() ? 'disabled' : '') + '>Hire</button></div></div>';

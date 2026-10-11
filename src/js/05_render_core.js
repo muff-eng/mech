@@ -94,7 +94,16 @@ function grp(parent, x = 0, y = 0, z = 0) {
 const TEX = { _c: new Map() };
 function canvasTex(key, w, h, draw, repeat) {
   let t = TEX._c.get(key);
-  if (t) return t;
+  if (t) {
+    if (TEX.lru && TEX.lru.has(key)) { TEX.lru.delete(key); TEX.lru.add(key); }
+    return t;
+  }
+  // paint and decal textures change often while editing, so keep only the most recent ones
+  if (/^(pat|pl)\|/.test(key)) {
+    TEX.lru = TEX.lru || new Set();
+    TEX.lru.add(key);
+    if (TEX.lru.size > 48) { const old = TEX.lru.values().next().value; TEX.lru.delete(old); const ot = TEX._c.get(old); if (ot) ot.dispose(); TEX._c.delete(old); }
+  }
   const c = document.createElement('canvas');
   c.width = w; c.height = h;
   const g = c.getContext('2d');

@@ -181,7 +181,7 @@ function buildArena(mapId) {
     }
   }
   const flashes = [];
-  for (let i = 0; i < 4; i++) { const l = new THREE.PointLight(0xffa040, 0, 30, 2); scene.add(l); flashes.push({ l, t: 0, max: 0 }); }
+  for (let i = 0; i < 2; i++) { const l = new THREE.PointLight(0xffa040, 0, 30, 2); scene.add(l); flashes.push({ l, t: 0, max: 0 }); }
   return { scene, map, obstacles, hx: map.hx, hz: map.hz, sun, flashes, mats: M };
 }
 

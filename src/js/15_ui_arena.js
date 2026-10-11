@@ -112,10 +112,10 @@ const Arena = {
     let sq = S.squadPick[key];
     if (!sq) {
       sq = [];
-      for (let i = 0; i < n; i++) sq.push({ d: i === 0 ? activeDesign().id : '', p: S.pilots[i] ? S.pilots[i].id : '' });
+      for (let i = 0; i < n; i++) sq.push({ d: i === 0 || S.pilots[i] ? activeDesign().id : '', p: S.pilots[i] ? S.pilots[i].id : '' });
       S.squadPick[key] = sq;
     }
-    while (sq.length < n) sq.push({ d: '', p: '' });
+    while (sq.length < n) { const i = sq.length; sq.push({ d: S.pilots[i] ? activeDesign().id : '', p: S.pilots[i] ? S.pilots[i].id : '' }); }
     sq.length = n;
     if (sq[0] && !sq[0].d) sq[0].d = activeDesign().id;
     return sq;
@@ -242,7 +242,18 @@ function startBattle(ctx) {
     const r = rv || null;
     return { design: clone(d), skill: r ? r.skill : ctx.type === 'practice' ? 0.4 : 0.6, pilot: r && r.trait ? { trait: r.trait, level: r.level || 1, call: r.call } : null, name: d.name, call: r ? (i === 0 ? r.call : 'Wing ' + i) : '' };
   });
-  const battle = new Battle({ map: ctx.map, teams: [A, B], orders: [ctx.order || 'aggressive', 'aggressive'], practice: ctx.type === 'practice', timeLimit: ctx.type === 'practice' && ctx.enemies[0] === 'dummy' ? 30 : 240 });
+  const bcfg = { map: ctx.map, teams: [A, B], orders: [ctx.order || 'aggressive', 'aggressive'], practice: ctx.type === 'practice', timeLimit: ctx.type === 'practice' && ctx.enemies[0] === 'dummy' ? 30 : 240 };
+  if (!GFX.ready) {
+    // no WebGL: resolve the fight instantly and go straight to the report
+    const battle = simulateBattle(bcfg, bcfg.timeLimit + 5);
+    if (!battle.over) battle.checkEnd();
+    CURRENT = { ctx, battle, view: null, phase: 'report' };
+    CURRENT.rewards = applyRewards(ctx, battle);
+    UI.toast('No WebGL | battle resolved instantly', 'amber');
+    showReport();
+    return;
+  }
+  const battle = new Battle(bcfg);
   if (VIEW.battleView) { VIEW.battleView.dispose(); VIEW.battleView = null; }
   const view = new BattleView(battle);
   VIEW.battleView = view;
@@ -294,7 +305,7 @@ const BattleHud = {
       const sp = t.closest('[data-sp]');
       if (sp) { if (sp.dataset.sp === 'pause') v.paused = !v.paused; else { v.speed = +sp.dataset.sp; v.paused = false; } this.renderBot(); return; }
       const cm = t.closest('[data-cam]');
-      if (cm) { v.setCam(cm.dataset.cam); return; }
+      if (cm) { v.setCam(cm.dataset.cam, true); return; }
       const od = t.closest('[data-ord]');
       if (od) { b.orders[0] = od.dataset.ord; if (od.dataset.ord === 'focus') { const tgt = v.follow && v.follow.team === 1 && v.follow.alive ? v.follow : b.enemiesOf(0).sort((x, y) => x.hpFrac - y.hpFrac)[0]; b.focus[0] = tgt || null; if (tgt) UI.toast('Focus fire on ' + esc(tgt.name) + ' | Click an enemy card to change', 'amber', 2200); } this.renderBot(); return; }
       if (t.closest('[data-quit]')) {
@@ -316,7 +327,7 @@ const BattleHud = {
     else if (e.key === '1') { v.speed = 1; v.paused = false; this.renderBot(); }
     else if (e.key === '2') { v.speed = 2; v.paused = false; this.renderBot(); }
     else if (e.key === '3' || e.key === '4') { v.speed = 4; v.paused = false; this.renderBot(); }
-    else if (e.key === 'c' || e.key === 'C') { const m = ['orbit', 'follow', 'cinematic']; v.setCam(m[(m.indexOf(v.camMode) + 1) % 3]); }
+    else if (e.key === 'c' || e.key === 'C') { const m = ['orbit', 'follow', 'cinematic']; v.setCam(m[(m.indexOf(v.camMode) + 1) % 3], true); }
     else if (e.key === 'Tab') {
       e.preventDefault();
       const us = CURRENT.battle.units.filter((u) => u.alive);

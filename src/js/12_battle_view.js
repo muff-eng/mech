@@ -41,10 +41,15 @@ class BattleView {
     o.onClick = (e) => this.pick(e);
     this.ray = new THREE.Raycaster();
   }
-  setCam(m) {
+  setCam(m, overview) {
     this.camMode = m;
     const o = GFX.orbit;
-    if (m === 'orbit') { o.tTarget.copy(this.camLook); o.target.copy(this.camLook); const d = GFX.camera.position.clone().sub(this.camLook); o.tDist = o.dist = clamp(d.length(), 10, 200); o.tYaw = o.yaw = Math.atan2(d.x, d.z); o.tPitch = o.pitch = clamp(Math.asin(d.y / Math.max(0.01, d.length())), 0.05, 1.4); }
+    if (m === 'orbit' && overview) {
+      const alive = this.b.units.filter((u) => u.alive);
+      const cx = alive.length ? alive.reduce((a, u) => a + u.x, 0) / alive.length : 0, cz = alive.length ? alive.reduce((a, u) => a + u.z, 0) / alive.length : 0;
+      o.tTarget.set(cx, 2, cz); o.tDist = Math.max(this.b.hx, this.b.hz) * 1.1; o.tPitch = 0.85; o.tYaw = Math.atan2(GFX.camera.position.x - cx, GFX.camera.position.z - cz);
+      o.target.copy(this.camLook); const d = GFX.camera.position.clone().sub(this.camLook); o.dist = clamp(d.length(), 10, 200); o.yaw = Math.atan2(d.x, d.z); o.pitch = clamp(Math.asin(d.y / Math.max(0.01, d.length())), 0.05, 1.4);
+    } else if (m === 'orbit') { o.tTarget.copy(this.camLook); o.target.copy(this.camLook); const d = GFX.camera.position.clone().sub(this.camLook); o.tDist = o.dist = clamp(d.length(), 10, 200); o.tYaw = o.yaw = Math.atan2(d.x, d.z); o.tPitch = o.pitch = clamp(Math.asin(d.y / Math.max(0.01, d.length())), 0.05, 1.4); }
     if (UI.battleHud) UI.battleHud.syncButtons();
   }
   pick(e) {

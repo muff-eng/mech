@@ -155,7 +155,7 @@ const Roster = {
   render() {
     const slots = squadSlots();
     let h = '<div class="page"><div class="panel rivets pe"><h3>Pilot Roster<span class="sp"></span><span class="faint" style="text-transform:none;letter-spacing:0">Squad slots ' + S.pilots.length + ' of ' + slots + ' | More slots unlock with each tier</span></h3><div class="scroll grow" data-k="rost">';
-    h += '<div class="sect"><h4>Your Pilots</h4></div><div class="cards">';
+    h += '<div class="sect"><h4>Your Pilots</h4></div><div class="cards wide">';
     for (const p of S.pilots) {
       const tr = PILOT_TRAITS[p.trait];
       const need = pilotXpNeeded(p.level);
@@ -164,7 +164,7 @@ const Roster = {
     }
     h += '</div>';
     if (!isSandbox()) {
-      h += '<div class="sect"><h4>Hiring Board</h4>' + (S.pilots.length >= slots ? '<div class="faint" style="font-size:12px">Squad is full for your tier. Beat the tier boss to open another slot.</div>' : '<div class="faint" style="font-size:12px">Hire cost ' + fmt(this.hireCost()) + ' cr</div>') + '</div><div class="cards">';
+      h += '<div class="sect"><h4>Hiring Board</h4>' + (S.pilots.length >= slots ? '<div class="faint" style="font-size:12px">Squad is full for your tier. Beat the tier boss to open another slot.</div>' : '<div class="faint" style="font-size:12px">Hire cost ' + fmt(this.hireCost()) + ' cr</div>') + '</div><div class="cards wide">';
       for (const p of S.hire) {
         const tr = PILOT_TRAITS[p.trait];
         h += '<div class="card"><div class="pilot">' + this.portrait(p) + '<div><div class="cn">' + esc(p.call) + '</div><div class="cs">' + esc(p.name) + '</div><div class="ct">' + esc(tr.name) + ' | ' + esc(tr.desc) + '</div></div></div><div class="cf"><span class="price">' + fmt(this.hireCost()) + ' cr</span><button class="btn sm pri" data-hire="' + p.id + '" ' + (S.pilots.length >= slots || S.credits < this.hireCost() ? 'disabled' : '') + '>Hire</button></div></div>';
